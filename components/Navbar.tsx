@@ -4,6 +4,7 @@ import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 import 'primeicons/primeicons.css';
 import ShinyText from './ui/ShinyText';
+import { useAuth } from '@/providers/AuthProvider';
 
 const navigation = [
   { name: 'Dashboard', href: '#', current: true },
@@ -13,11 +14,24 @@ const navigation = [
 ]
 
 export default function Navbar() {
-    
-    const isSignIn = false;
-    const username = "Amir";
 
-    const handleAuthClick = async ()=>{}
+    const {isSignedIn, userName, signIn, signOut } = useAuth()
+    
+    const handleAuthClick = async ()=>{
+        if(isSignedIn){
+            try {
+                await signOut();
+            } catch (error) {
+                console.error(`Puter sign out failed: ${error}`);
+            }
+            return;
+        }
+        try {
+            await signIn();
+        } catch (error) {
+            console.error(`Puter sign in failed: ${error}`);
+        }
+    }
     return (
         <Disclosure
         as="nav"
@@ -61,11 +75,14 @@ export default function Navbar() {
                 </div>
             </div>
             <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 gap-5">
-                    {isSignIn? (
+                    {isSignedIn? (
                         <>
                             <span>
-                                {username ? `Hi ${username}`:'Signed in'}
+                                {userName ? `Hi ${userName}`:'Signed in'}
                             </span>
+                            <button onClick={handleAuthClick} className='rounded-md border border-red-500 px-2 py-1 text-red-500'>
+                                Log out
+                            </button>
                         </>
                     ):(
                         <>
