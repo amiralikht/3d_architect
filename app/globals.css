@@ -166,3 +166,16 @@ button{
     @apply bg-background text-foreground;
   }
 }
+.home {
+  @apply min-h-screen bg-background relative overflow-x-hidden text-foreground;
+}
+.card_body {
+  @apply p-5 flex justify-between items-center grow bg-linear-to-b from-transparent from-5% to-black to-95% absolute bottom-0 w-full 
+}
+.badge {
+  @apply absolute top-3 left-3 bg-white/90 backdrop-blur-md px-2 py-1 rounded-md border border-zinc-200 shadow-sm
+}
+
+.empty {
+  @apply col-span-full rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-10 text-center text-sm text-zinc-500;
+}
