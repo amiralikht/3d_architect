@@ -1,4 +1,6 @@
+"use client"
 /* eslint-disable @next/next/no-img-element */
+import { useEffect, useRef, useState } from "react";
 import Navbar from "@/components/Navbar";
 import SplitText from "@/components/ui/SplitText";
 import { InteractiveGridPattern } from "@/components/ui/InteractiveGridPattern"
@@ -8,9 +10,60 @@ import { ArrowRight, ArrowUpRight, Clock } from "lucide-react";
 import Link from "next/link";
 import { Button } from "primereact/button";
 import { cn } from "@/lib/utils";
-
+import Upload from "@/components/Upload";
+import { useRouter } from 'next/navigation';
+import { createProject } from "@/lib/puter.action";
 
 export default function Home() {
+  const router = useRouter();
+  const [projects, setProjects] = useState<DesignItem[]>([]);
+  const isCreatingProjectRef = useRef(false);
+
+  const handleUploadComplete = async (base64Image: string) => {
+    try {
+      if (isCreatingProjectRef.current) return false;
+      isCreatingProjectRef.current = true;
+
+      const newId = Date.now().toString();
+      const name = `Residence ${newId}`;
+      const newItem: DesignItem = {
+        id: newId,
+        name,
+        sourceImage: base64Image,
+        renderedImage: undefined,
+        timestamp: Date.now(),
+      };
+
+      const saved = await createProject({ item: newItem, visibility: 'private' });
+
+      if (!saved) {
+        console.error('Failed to create project');
+        return false;
+      }
+
+      setProjects((prev) => [saved, ...prev]);
+      router.push(`/visualizer/${saved.id}`);
+
+      return true;
+    } catch (error) {
+      console.error('Error creating project:', error);
+      return false;
+    } finally {
+      isCreatingProjectRef.current = false;
+    }
+  };
+
+  // useEffect(() => {
+  //       const fetchProjects = async () => {
+  //           const items = await getProjects();
+
+  //           setProjects(items)
+  //       }
+
+  //       fetchProjects();
+  //   }, []);
+
+
   return (
   <div className="home">
     <Navbar/>
@@ -68,50 +121,50 @@ export default function Home() {
             <h3 className="text-2xl font-bold text-black">Upload your floor pan</h3>
             <p className="text-zinc-500 text-sm mt-1">Supports JPG, PNG, format up to 10MB</p>
           </div>
-          <p>Upload images</p>
+          <Upload onComplete={handleUploadComplete}/>
         </div>
     </div>
     </section>
     <section className="py-24 bg-white relative border-b border-zinc-100">
-              <div className="max-w-7xl mx-auto px-6">
-                  <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
-                      <div className="max-w-2xl">
-                          <h2 className="text-4xl font-serif text-black mb-4">Projects</h2>
-                          <p className="text-zinc-500 text-lg">Your latest work and shared community projects, all in one place.</p>
-                      </div>
-                  </div>
+        <div className="max-w-7xl mx-auto px-6">
+            <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+                <div className="max-w-2xl">
+                    <h2 className="text-4xl font-serif text-black mb-4">Projects</h2>
+                    <p className="text-zinc-500 text-lg">Your latest work and shared community projects, all in one place.</p>
+                </div>
+            </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                          <div className="relative bg-white rounded-xl overflow-hidden border border-zinc-200 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col h-full group min-h-100">
-                              <div className="aspect-4/3 overflow-hidden bg-white relative w-full h-full">
-                                  {/* <img  src={renderedImage || sourceImage} alt="Project"
-                                  /> */}
-                                  <img src="https://roomify-mlhuk267-dfwu1i.puter.site/projects/1770803585402/rendered.png" alt="" className="w-full h-full group-hover:scale-105 transition-transform duration-700 object-contain"/>
-                                  <div className="badge">
-                                      <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-800">Community</span>
-                                  </div>
-                              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div className="relative bg-white rounded-xl overflow-hidden border border-zinc-200 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col h-full group min-h-100">
+                        <div className="aspect-4/3 overflow-hidden bg-white relative w-full h-full">
+                            {/* <img  src={renderedImage || sourceImage} alt="Project"
+                            /> */}
+                            <img src="https://roomify-mlhuk267-dfwu1i.puter.site/projects/1770803585402/rendered.png" alt="" className="w-full h-full group-hover:scale-105 transition-transform duration-700 object-contain"/>
+                            <div className="badge">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-800">Community</span>
+                            </div>
+                        </div>
 
-                              <div className="card_body">
-                                  <div className="w-2/3 h-full">
-                                      <h3 className="text-2xl shadow-2xl font-bold text-white  transition-colors">Project</h3>
+                        <div className="card_body">
+                            <div className="w-2/3 h-full">
+                                <h3 className="text-2xl shadow-2xl font-bold text-white  transition-colors">Project</h3>
 
-                                      <div className="flex items-center text-zinc-400 text-xs mt-1 space-x-2 uppercase">
-                                          <Clock size={12} />
-                                          {/* <span>{new Date(timestamp).toLocaleDateString()}</span> */}
-                                          <span>11:20</span>
-                                          <span className="text-zinc-100 text-[10px] tracking-wide">By JS Mastery</span>
-                                      </div>
-                                  </div>
-                                  <div className="w-10 h-10 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-400 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all duration-300">
-                                      <ArrowUpRight size={18} />
-                                  </div>
-                              </div>
-                          </div>
-                      
-                  </div>
-              </div>
-          </section>
+                                <div className="flex items-center text-zinc-400 text-xs mt-1 space-x-2 uppercase">
+                                    <Clock size={12} />
+                                    {/* <span>{new Date(timestamp).toLocaleDateString()}</span> */}
+                                    <span>11:20</span>
+                                    <span className="text-zinc-100 text-[10px] tracking-wide">By JS Mastery</span>
+                                </div>
+                            </div>
+                            <div className="w-10 h-10 rounded-full bg-zinc-50 border border-zinc-200 flex items-center justify-center text-zinc-400 group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all duration-300">
+                                <ArrowUpRight size={18} />
+                            </div>
+                        </div>
+                    </div>
+                
+            </div>
+        </div>
+    </section>
   </div>
   );
 }

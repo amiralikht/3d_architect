@@ -179,3 +179,9 @@ button{
 .empty {
   @apply col-span-full rounded-xl border border-dashed border-zinc-200 bg-zinc-50 p-10 text-center text-sm text-zinc-500;
 }
+.dropzone{
+  @apply relative h-48 rounded-xl border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center cursor-pointer bg-zinc-50 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-100;
+}
+.drop-icon{
+  @apply w-12 h-12 rounded-full flex items-center justify-center mb-4 transition-colors bg-zinc-200 text-zinc-500
+}
